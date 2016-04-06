@@ -37,10 +37,12 @@ app = CogatServer(__name__)
 ### Helper Functions
 def make_node(concept,tagged_image,v):
   image = app.images.loc[tagged_image]
+  classes = " ".join(app.Y.loc[tagged_image][app.Y.loc[tagged_image]==1].index.tolist())
   return {
     "radius": app.radius,
     "concept": concept,
     "concept_name":app.lookup.name[app.lookup.id==concept].tolist()[0],
+    "classes":classes,
     "contrast": image.cognitive_contrast_cogatlas,
     "task": image.cognitive_paradigm_cogatlas,
     "collection": image.collection_id,

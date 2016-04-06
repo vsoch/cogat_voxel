@@ -127,7 +127,7 @@ body {
 <div class="mdl-grid">
 
   <!-- Voxel Selector -->
-  <div class="mdl-cell mdl-cell--3-col">
+  <div class="mdl-cell mdl-cell--4-col">
       <div class="mdl-card mdl-shadow--2dp">
           <div class="mdl-card__title">
               <h2 class="mdl-card__title-text">MNI Coordinate</h2>
@@ -165,24 +165,19 @@ body {
       </div>
   </div>
 
-  <!-- Concept List -->
-  <div class="mdl-cell mdl-cell--4-col">
-      <div class="mdl-card mdl-shadow--2dp">
-          <div class="mdl-card__title">
-              <h2 class="mdl-card__title-text">Cognitive Concepts</h2>
-          </div>
-              <div id="concepts"></div> <!--Concepts will be appended here-->
-          <div class="mdl-card__supporting-text">
-         </div>
-      </div>
-  </div>
-
   <!-- Brain Image Viewer -->  
   <div class="mdl-cell mdl-cell--4-col">
       <a href="#" id="neurovault" target="_blank">
           <img id="brainmap" href="#"/>
       </a>
   </div>
+
+  <!-- Concept List -->
+  <div class="mdl-cell mdl-cell--4-col">
+      <h2 class="mdl-card__title-text" style="padding-bottom:20px">Cognitive Concepts</h2>
+      <div id="concepts"></div> <!--Concepts will be appended here-->
+  </div>
+
 </div>
 
 <script>
@@ -216,6 +211,7 @@ var nodes = d3.range(n).map(function(idx) {
     concept_id: node.concept,
     concept: node.concept_name,
     contrast: node.contrast,
+    classes: node.classes,
     collection: node.collection,
     thumbnail: node.thumbnail,
     color: colors[node.concept],
@@ -225,7 +221,6 @@ var nodes = d3.range(n).map(function(idx) {
   };
 });
 
-//TODO add axis?
 
 var force = d3.layout.force()
     .nodes(nodes)
@@ -250,7 +245,7 @@ var tip = d3.tip()
       .attr('class', 'd3-tip')
       .offset([-10, 0])
       .html(function(d) {
-return "<strong>task:</strong><span style='color:tomato'> " + d.task + "</span><br><strong>concept:</strong><span style='color:yellow'> " + d.concept + "</span><br><strong>collection:</strong><span style='color:orange'> " + d.collection + "</span>";
+return "<strong>task:</strong><span style='color:tomato'> " + d.task + "</span><br><strong>concept:</strong><span style='color:yellow'> " + d.concept + "</span><br><strong>collection:</strong><span style='color:orange'> " + d.collection + "</span><br><strong>image_id:</strong><span style='color:cornflowerblue'> " + d.uid + "</span>";
     })
     
 svg.call(tip);
@@ -260,6 +255,8 @@ var circle = svg.selectAll("circle")
   .enter().append("circle")
     .attr("r", function(d) { return d.radius; })
     .style("fill", function(d) { return d.color; })
+    .attr("class", function(d) { return d.classes; })
+    .attr("color",function(d) { return d.color })
     .on('mouseout.tip', tip.hide)
     .on('mouseover.tip', tip.show)
     .on('mouseover.img',function(d){
@@ -317,7 +314,25 @@ r = d.radius + quad.point.radius + sim * padding //(d.color !== quad.point.color
 // Contrasts
 $.each(colors, function(concept_id, color) {
    var concept_name = lookup[concept_id] 
-   $("#concepts").append("<div class='concept_label' style='background-color:" + color +";'>"+ concept_name +"</div>")
+     $("#concepts").append('<button concept="'+ concept_id +'" class="concept_button mdl-button mdl-js-button mdl-js-ripple-effect">'+ concept_name +'</button>')
+   //$("#concepts").append("<div class='concept_label' style='background-color:" + color +";'>"+ concept_name +"</div>")
+});
+
+// Function to highlight contrasts on click
+$(".concept_button").mouseover(function() {
+    var concept = $(this).attr("concept");
+    $("."+concept).css("fill","red")
+});
+
+$(".concept_button").mouseout(function() {
+    var concept = $(this).attr("concept");
+    var elements = $("."+concept)
+    $.each(elements, function(idx, element) {
+        console.log(idx)
+        console.log(element)
+        $(element).css("fill",$(element).attr("color"))
+    });
+    
 });
 </script>
 </body>
