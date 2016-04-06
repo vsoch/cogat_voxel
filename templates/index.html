@@ -1,20 +1,196 @@
 <!DOCTYPE html>
-<meta charset="utf-8">
+<head>
+    	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    
+    	<!-- iOS meta tags -->
+    	<meta name="apple-mobile-web-app-capable" content="yes">
+    	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+        <link rel='stylesheet' type='text/css' href='https://code.getmdl.io/1.1.1/material.blue-red.min.css'>
+        <link href='http://fonts.googleapis.com/css?family=Roboto:300' rel='stylesheet' type='text/css'>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <script src='https://code.getmdl.io/1.1.1/material.min.js'></script>
+        <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+        <script src="//d3js.org/d3.v3.min.js"></script>
+        <script src="{{ url_for('static', filename='js/tipsy.js') }}"></script>
+</head>
+
+
 <style>
 
 circle {
   stroke: #fff;
 }
 
+body {
+  padding:15px;
+  max-height: 900px;
+  font-family: 'Roboto', sans-serif;
+}
+
+.concept_label {
+  width:200px;
+  height:20px;
+}
+
+.d3-tip {
+  line-height: 1;
+  font-weight: bold;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 2px;
+}
+
+.d3-tip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 10px;
+  width: 100%;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  content: "\25BC";
+  position: absolute;
+  text-align: center;
+}
+
+.d3-tip.n:after {
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+}
+
+#left {
+  position: absolute;
+  left: 35px;
+  top: 260px;
+}
+
+#right {
+  position: absolute;
+  right: 25px;
+  top: 260px;
+}
+
+#viewer {
+  position: fixed;
+  bottom:0px;
+  right:0px;
+  width:100px;
+  height:100px;
+  max-height:100px;
+  max-width:100px;
+}
+
+#voxel {
+  position: absolute
+  height: {{ height }},
+  width: {{ width }}
+}
+
+.contrast-card-image.mdl-card {
+  width: 500px;
+  height: 300px;
+}
+.contrast-card-image > .mdl-card__actions {
+  height: 52px;
+  padding: 16px;
+}
+.contrast-card-image__filename {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+}
+
 </style>
 <body>
+<h2 style="padding-left:15px">Cognitive Concept Association with Voxel {{voxel}}</h2>
 
-<script src="//d3js.org/d3.v3.min.js"></script>
+<div id="left">
+    <button style="background:#F44336" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored"><strong>-</strong></button>
+    <div class="mdl-tooltip" for="left">
+        <strong>Negative</strong> association
+    </div>
+</div>
+
+<div id="right">
+    <button style="background:#4CAF50" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored">
+        <i class="material-icons">add</i>
+    </button>
+    <div class="mdl-tooltip" for="right">
+        <strong>Positive</strong> association
+    </div>
+</div>
+
+<div id="voxel"></div>
+
+<div class="mdl-grid">
+
+  <!-- Voxel Selector -->
+  <div class="mdl-cell mdl-cell--3-col">
+      <div class="mdl-card mdl-shadow--2dp">
+          <div class="mdl-card__title">
+              <h2 class="mdl-card__title-text">MNI Coordinate</h2>
+          </div>
+          <div class="mdl-card__supporting-text">
+          Choose your MNI (X,Y,Z) coordinate to query the model.
+
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="xcoord">
+                <label class="mdl-textfield__label" for="xcoord">X</label>
+                <span class="mdl-textfield__error">Input is not a number!</span>
+            </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="ycoord">
+                <label class="mdl-textfield__label" for="ycoord">Y</label>
+                <span class="mdl-textfield__error">Input is not a number!</span>
+           </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="zcoord">
+                <label class="mdl-textfield__label" for="zcoord">Z</label>
+                <span class="mdl-textfield__error">Input is not a number!</span>
+           </div>
+         </div>
+         <div class="mdl-card__actions mdl-card--border">
+             <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+             Choose
+             </a>
+         </div>
+         <div class="mdl-card__menu">
+             <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect">
+		<a href="https://twitter.com/share" data-text="Cognitive Atlas Decoding Model" data-via="vsoch" data-hashtags="cognitiveatlas"><i class="material-icons">share</i></a>
+		<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+             </button>
+         </div>
+      </div>
+  </div>
+
+  <!-- Concept List -->
+  <div class="mdl-cell mdl-cell--4-col">
+      <div class="mdl-card mdl-shadow--2dp">
+          <div class="mdl-card__title">
+              <h2 class="mdl-card__title-text">Cognitive Concepts</h2>
+          </div>
+              <div id="concepts"></div> <!--Concepts will be appended here-->
+          <div class="mdl-card__supporting-text">
+         </div>
+      </div>
+  </div>
+
+  <!-- Brain Image Viewer -->  
+  <div class="mdl-cell mdl-cell--4-col">
+      <a href="#" id="neurovault" target="_blank">
+          <img id="brainmap" href="#"/>
+      </a>
+  </div>
+</div>
+
 <script>
-var concepts = {{ concepts | safe }}
-var regparams = {{ regparams | safe }}
-var images = {{ images | safe }}
-var data = {{ nodes| safe }}
+var regparams = {{ regparams | safe }} //regparam lookup by concept
+var data = {{ nodes| safe }}           //images tagged with relevant concepts
+var spatial = {{ spatial | safe }}     //spatial similarity matrix, as json
+var colors = {{ colors | safe }}
+var lookup = {{ lookup | safe }}
 
 var width = {{ width }},
     height = {{ height }},
@@ -35,12 +211,21 @@ var nodes = d3.range(n).map(function(idx) {
   node = data[idx];
   i = regparams[node.concept]
   return {
-    radius: node.radius,
-    color: "red",
+    radius: node.value, // corresponds to voxel value
+    task: node.task,
+    concept_id: node.concept,
+    concept: node.concept_name,
+    contrast: node.contrast,
+    collection: node.collection,
+    thumbnail: node.thumbnail,
+    color: colors[node.concept],
+    uid: node.uid,
     cx: x(i),
     cy: height / 2
   };
 });
+
+//TODO add axis?
 
 var force = d3.layout.force()
     .nodes(nodes)
@@ -50,15 +235,37 @@ var force = d3.layout.force()
     .on("tick", tick)
     .start();
 
-var svg = d3.select("body").append("svg")
+var svg = d3.select("#voxel").append("svg")
     .attr("width", width)
     .attr("height", height);
+
+// Gray background
+svg.append("rect")
+    .attr("width", "100%")
+    .attr("height", "100%")
+    .attr("fill", "#F7F7F7");
+
+// Tooltips
+var tip = d3.tip()
+      .attr('class', 'd3-tip')
+      .offset([-10, 0])
+      .html(function(d) {
+return "<strong>task:</strong><span style='color:tomato'> " + d.task + "</span><br><strong>concept:</strong><span style='color:yellow'> " + d.concept + "</span><br><strong>collection:</strong><span style='color:orange'> " + d.collection + "</span>";
+    })
+    
+svg.call(tip);
 
 var circle = svg.selectAll("circle")
     .data(nodes)
   .enter().append("circle")
     .attr("r", function(d) { return d.radius; })
     .style("fill", function(d) { return d.color; })
+    .on('mouseout.tip', tip.hide)
+    .on('mouseover.tip', tip.show)
+    .on('mouseover.img',function(d){
+         $("#brainmap").attr("src",d.thumbnail)
+         $("#neurovault").attr("href","http://www.neurovault.org/images/" + d.uid)
+    })
     .call(force.drag);
 
 function tick(e) {
@@ -88,10 +295,12 @@ function collide(alpha) {
         ny2 = d.y + r;
     quadtree.visit(function(quad, x1, y1, x2, y2) {
       if (quad.point && (quad.point !== d)) {
+        var sim = spatial[d.uid][quad.point.uid]
         var x = d.x - quad.point.x,
-            y = d.y - quad.point.y,
-            l = Math.sqrt(x * x + y * y),
-            r = d.radius + quad.point.radius + (d.color !== quad.point.color) * padding;
+y = d.y - quad.point.y,
+l = Math.sqrt(x * x + y * y),
+// This will cluster the images based on their concept (color)
+r = d.radius + quad.point.radius + sim * padding //(d.color !== quad.point.color) * padding;
         if (l < r) {
           l = (l - r) / l * alpha;
           d.x -= x *= l;
@@ -105,4 +314,10 @@ function collide(alpha) {
   };
 }
 
+// Contrasts
+$.each(colors, function(concept_id, color) {
+   var concept_name = lookup[concept_id] 
+   $("#concepts").append("<div class='concept_label' style='background-color:" + color +";'>"+ concept_name +"</div>")
+});
 </script>
+</body>
