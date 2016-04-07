@@ -17,7 +17,7 @@ class CogatServer(Flask):
 
             # D3 specific variables
             self.width = 1500
-            self.height = 370
+            self.height = 380
             self.padding = 12
             self.maxRadius = 12
           

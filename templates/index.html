@@ -155,6 +155,8 @@ body {
              <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
              Choose
              </a>
+             <button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" id="save_as_svg" value="" onclick="save_svg()">Save as SVG</button>
+
          </div>
          <div class="mdl-card__menu">
              <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect">
@@ -335,5 +337,15 @@ $(".concept_button").mouseout(function() {
     var concept = $(this).attr("concept");
     $("."+concept).css("stroke","none")    
 });
+
+//Vanessa's Hacky save svg function!
+function save_svg(evt) {
+    var svg = document.getElementsByTagName("svg");
+    var serializer = new XMLSerializer();
+    var svg_blob = new Blob([serializer.serializeToString(svg[0])],
+                            {'type': "image/svg+xml"});
+    var url = URL.createObjectURL(svg_blob);
+    var svg_win = window.open(url, "svg_win");
+}
 </script>
 </body>
