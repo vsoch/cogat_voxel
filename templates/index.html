@@ -202,8 +202,8 @@ var n = {{ N }}, // total number of nodes (contrast images)
 
 // Linear color scale between blue and red
 var color = d3.scale.linear()
-    .domain([{{min_voxel}}, {{max_voxel}}])
-    .range(["cornflowerblue","orangered"]);
+    .domain([{{min_voxel}}, 0,{{max_voxel}}])
+    .range(["cornflowerblue","#CCCCCC","orangered"]);
 
 var x = d3.scale.linear()
     .domain([{{min}}-0.2,{{max}}+0.2])
@@ -272,6 +272,18 @@ var circle = svg.selectAll("circle")
          $("#brainmap").attr("src",d.thumbnail)
          $("#neurovault").attr("href","http://www.neurovault.org/images/" + d.uid)
     })
+    .on('mouseover.button',function(d){
+        var classes = d.classes.split(/\s+/);
+        $.each(classes, function(idx,single_class) {
+            $("[name="+ single_class +"]").css("background-color","aqua")
+        });        
+    })
+    .on('mouseout.button',function(d){
+        var classes = d.classes.split(/\s+/);
+        $.each(classes, function(idx,single_class) {
+            $("[name="+ single_class +"]").css("background-color","")
+        });
+    })
     .call(force.drag);
 
 function tick(e) {
@@ -323,18 +335,18 @@ r = d.radius + quad.point.radius + sim * padding //(d.color !== quad.point.color
 // Contrasts
 $.each(colors, function(concept_id, color) {
    var concept_name = lookup[concept_id] 
-     $("#concepts").append('<button concept="'+ concept_id +'" class="concept_button mdl-button mdl-js-button mdl-js-ripple-effect">'+ concept_name +'</button>')
+     $("#concepts").append('<button name="'+ concept_id +'" class="concept_button mdl-button mdl-js-button mdl-js-ripple-effect">'+ concept_name +'</button>')
    //$("#concepts").append("<div class='concept_label' style='background-color:" + color +";'>"+ concept_name +"</div>")
 });
 
 // Function to highlight contrasts on click
 $(".concept_button").mouseover(function() {
-    var concept = $(this).attr("concept");
+    var concept = $(this).attr("name");
     $("."+concept).css("stroke","aqua")
 });
 
 $(".concept_button").mouseout(function() {
-    var concept = $(this).attr("concept");
+    var concept = $(this).attr("name");
     $("."+concept).css("stroke","none")    
 });
 
