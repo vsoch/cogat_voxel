@@ -19,13 +19,12 @@ class CogatServer(Flask):
             self.width = 1500
             self.height = 370
             self.padding = 12
-            self.radius = 5
             self.maxRadius = 12
           
             # Image data
             self.X = pickle.load(open("data/images_df.pkl","rb"))
             # value will be radius, we don't want negative values
-            self.X = self.X + self.X.min().abs()
+            self.radius = self.X + self.X.min().abs()
 
             # Pairwise spatial similarity
             self.spatial = pandas.read_csv("data/contrast_defined_images_pearsonpd_similarity.tsv",sep="\t",index_col=0)
@@ -39,7 +38,7 @@ def make_node(concept,tagged_image,v):
   image = app.images.loc[tagged_image]
   classes = " ".join(app.Y.loc[tagged_image][app.Y.loc[tagged_image]==1].index.tolist())
   return {
-    "radius": app.radius,
+    "radius": app.radius.loc[tagged_image,v],
     "concept": concept,
     "concept_name":app.lookup.name[app.lookup.id==concept].tolist()[0],
     "classes":classes,
@@ -94,6 +93,10 @@ def voxel(v):
     # Generate a lookup by concept name
     lookup = get_lookup()
 
+    # Min and max values for the color scale
+    min_voxel = app.X.loc[:,v].min()
+    max_voxel = app.X.loc[:,v].max()
+
     # We only need spatial similarity for images relevant to concept
     spatial = app.spatial.loc[unique_images,[str(x) for x in unique_images]]
     spatial = (spatial-1).abs().to_json() # needs to be a positive distance between 0 and 1
@@ -104,6 +107,8 @@ def voxel(v):
                                         min=app.df.loc[v].min(),
                                         max=app.df.loc[v].max(),
                                         width=app.width,
+                                        min_voxel=min_voxel,
+                                        max_voxel=max_voxel,
                                         height=app.height,
                                         padding=app.padding,
                                         radius=app.radius,

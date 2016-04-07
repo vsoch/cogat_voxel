@@ -107,14 +107,14 @@ body {
 <h2 style="padding-left:15px">Cognitive Concept Association with Voxel {{voxel}}</h2>
 
 <div id="left">
-    <button style="background:#F44336" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored"><strong>-</strong></button>
+    <button style="background:#CCCCCC" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored"><strong>-</strong></button>
     <div class="mdl-tooltip" for="left">
         <strong>Negative</strong> association
     </div>
 </div>
 
 <div id="right">
-    <button style="background:#4CAF50" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored">
+    <button style="background:#CCCCCC" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored">
         <i class="material-icons">add</i>
     </button>
     <div class="mdl-tooltip" for="right">
@@ -195,8 +195,13 @@ var width = {{ width }},
 var n = {{ N }}, // total number of nodes (contrast images)
     m = {{ M }}; // number of distinct clusters (concepts)
 
-var color = d3.scale.category10()
-    .domain(d3.range(m));
+//var color = d3.scale.category10()
+//    .domain(d3.range(m));
+
+// Linear color scale between blue and red
+var color = d3.scale.linear()
+    .domain([{{min_voxel}}, {{max_voxel}}])
+    .range(["cornflowerblue","orangered"]);
 
 var x = d3.scale.linear()
     .domain([{{min}}-0.2,{{max}}+0.2])
@@ -206,7 +211,7 @@ var nodes = d3.range(n).map(function(idx) {
   node = data[idx];
   i = regparams[node.concept]
   return {
-    radius: node.value, // corresponds to voxel value
+    radius: node.radius, // related to voxel value
     task: node.task,
     concept_id: node.concept,
     concept: node.concept_name,
@@ -214,7 +219,8 @@ var nodes = d3.range(n).map(function(idx) {
     classes: node.classes,
     collection: node.collection,
     thumbnail: node.thumbnail,
-    color: colors[node.concept],
+    color: color(node.value),
+    //color: colors[node.concept],
     uid: node.uid,
     cx: x(i),
     cy: height / 2
@@ -255,6 +261,7 @@ var circle = svg.selectAll("circle")
   .enter().append("circle")
     .attr("r", function(d) { return d.radius; })
     .style("fill", function(d) { return d.color; })
+    .style("stroke-width",3)
     .attr("class", function(d) { return d.classes; })
     .attr("color",function(d) { return d.color })
     .on('mouseout.tip', tip.hide)
@@ -321,18 +328,12 @@ $.each(colors, function(concept_id, color) {
 // Function to highlight contrasts on click
 $(".concept_button").mouseover(function() {
     var concept = $(this).attr("concept");
-    $("."+concept).css("fill","red")
+    $("."+concept).css("stroke","aqua")
 });
 
 $(".concept_button").mouseout(function() {
     var concept = $(this).attr("concept");
-    var elements = $("."+concept)
-    $.each(elements, function(idx, element) {
-        console.log(idx)
-        console.log(element)
-        $(element).css("fill",$(element).attr("color"))
-    });
-    
+    $("."+concept).css("stroke","none")    
 });
 </script>
 </body>
