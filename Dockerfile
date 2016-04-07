@@ -1,12 +1,19 @@
-FROM ubuntu
+FROM python:2.7
+ENV PYTHONUNBUFFERED 1
+RUN apt-get update && apt-get install -y \
+    libopenblas-dev \
+    gfortran \
+    libhdf5-dev \
+    libgeos-dev
+
 MAINTAINER Vanessa Sochat
 
-RUN apt-get update
-RUN apt-get install -y python python-dev python-distribute python-pip
+RUN pip install --upgrade pip
 RUN pip install flask
 RUN pip install gunicorn
+RUN pip install pandas
 
 ADD . /code
 WORKDIR /code
 
-EXPOSE 5000
+EXPOSE 8000
