@@ -1,5 +1,6 @@
 from flask import Flask, render_template
 import random
+import numpy
 import pandas
 import pickle
 
@@ -14,6 +15,8 @@ class CogatServer(Flask):
             self.images = pandas.read_csv("data/contrast_defined_images_filtered.tsv",sep="\t",index_col="image_id")
             self.Y = pandas.read_csv("data/images_contrasts_df.tsv",sep="\t",index_col=0)
             self.lookup = pandas.read_csv("data/cogatlas_concepts.tsv",sep="\t",index_col=0)
+            self.regions = pandas.read_csv("data/aal_4mm_region_coords.tsv",sep="\t",index_col=0)
+            self.region_lookup = pandas.read_pickle("data/aal_4mm_region_lookup.pkl")
 
             # D3 specific variables
             self.width = 1500
@@ -67,7 +70,7 @@ def random_colors(concepts):
 
 
 @app.route("/<v>")
-def voxel(v):
+def voxel(v,name):
 
     v = int(v)
 
@@ -101,6 +104,9 @@ def voxel(v):
     spatial = app.spatial.loc[unique_images,[str(x) for x in unique_images]]
     spatial = (spatial-1).abs().to_json() # needs to be a positive distance between 0 and 1
 
+    # We will let the user select a voxel location based on region
+    regions = app.regions.to_dict(orient="records")
+
     return render_template("index.html",regparams=regparams,
                                         M=len(concepts),
                                         N=len(nodes),
@@ -117,14 +123,28 @@ def voxel(v):
                                         spatial=spatial,
                                         lookup=lookup,
                                         colors=colors,
-                                        voxel=v)
+                                        voxel=v,
+                                        regions=regions,
+                                        region_name=name)
 
 
 @app.route("/")
 def index():
+    # Select a random region
+    name = numpy.random.choice(app.regions.name.tolist(),1)[0]
+    return region(name)
 
-    return voxel(0)
 
+@app.route("/region/<name>")
+def region(name):
+
+    # Look up the value of the region
+    value = app.regions.value[app.regions.name==name].tolist()[0]
+    
+    # Select a voxel coordinate at random
+    voxel_idx = numpy.random.choice(app.region_lookup.index[app.region_lookup.aal == value],1)[0]
+
+    return voxel(voxel_idx,name=name)
 
 if __name__ == "__main__":
     app.debug = True

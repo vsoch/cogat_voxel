@@ -10,6 +10,7 @@ MAINTAINER Vanessa Sochat
 
 RUN pip install --upgrade pip
 RUN pip install flask
+RUN pip install numpy
 RUN pip install gunicorn
 RUN pip install pandas
 
