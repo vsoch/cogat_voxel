@@ -108,14 +108,14 @@ body {
 <body>
 <h3 style="padding-left:15px">Cognitive Concept Association with Region {{region_name}}</h3>
 
-<div id="left">
+<div id="left" class="visual">
     <button style="background:#CCCCCC" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored"><strong>-</strong></button>
     <div class="mdl-tooltip" for="left">
         <strong>Negative</strong> association
     </div>
 </div>
 
-<div id="right">
+<div id="right" class="visual">
     <button style="background:#CCCCCC" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored">
         <i class="material-icons">add</i>
     </button>
@@ -124,20 +124,22 @@ body {
     </div>
 </div>
 
-<div id="voxel"></div>
+<div id="voxel" class="visual"></div>
 
 <!-- Menu in top right -->
 <div class="mdl-card__menu">
 
          <!-- Image options -->
          <div class="mdl-card__actions">
-             <button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+             <button class="mdl-button mdl-button--colored mdl-button--icon mdl-js-button mdl-js-ripple-effect">
 		<a href="https://twitter.com/share" data-text="Cognitive Atlas Decoding Model" data-via="vsoch" data-hashtags="cognitiveatlas"><i class="material-icons">share</i></a>
 		<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
              </button>
 
-             <button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" id="save_as_svg" value="" onclick="save_svg()"><i class="material-icons">save</i></button>
-             <button id="fullscreen" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" id="save_as_svg" value=""><i class="material-icons">fullscreen</i></button>
+             <button class="mdl-button mdl-button--icon mdl-button--colored mdl-js-ripple-effect" id="save_as_svg" value="" onclick="save_svg()"><i class="material-icons">save</i></button>
+             <button id="about" class="mdl-button mdl-button--icon mdl-button--colored mdl-js-button mdl-js-ripple-effect" id="save_as_svg" value=""><i class="material-icons">info</i></button>
+             <button id="fullscreen" class="mdl-button mdl-button--icon mdl-button--colored mdl-js-button mdl-js-ripple-effect" id="save_as_svg" value=""><i class="material-icons">fullscreen</i></button>
+             <button class="mdl-button mdl-button--icon mdl-button--colored mdl-js-ripple-effect" id="github" value=""><i class="material-icons">code</i></button>
 
          </div>
 
@@ -147,8 +149,59 @@ body {
 
 <div class="mdl-grid">
 
+  <!-- About Concent -->
+  <div class="mdl-cell mdl-cell--12-col" id="about_info" style="display:none; padding:20px">
+      <h4>What am I looking at?</h4>
+     You are looking at the relative contribution of different cognitive concepts for a single location in the brain, an x,y,z coordinate called a "voxel." Each circle represents a statistical brain map result for a particular task and cognitive concept, colored by the value in the original brain map (reds are more positive, blues more negative) and sized (larger to smaller) for the same dimension. If you mouse over a node, the cognitive concepts relevant to the image will light up in the bottom right. If you mouse over a cognitive concept, the associated nodes will be highlighted.<br>
+     <h4>What do you mean "relative contribution?"</h4>
+      We used a bunch a brain maps labeled with <a href="http://www.cognitiveatlas.org">cognitive concepts</a> to generate a sparse Logistic Regression model at each voxel (think an x,y,z coordinate in a 3D brain map), meaning that we found an optimal weighting of each cognitive concept to predict the voxel values across a large set of images. You are looking at the "relative contribution" (e.g., importance) of each concept for a particular voxel, represented by the weight (the beta or regression parameter) produced by the model. 
+     <h4>What do these voxel-wise models do?</h4>
+     Having a model at each voxel means that we can use cognitive concepts to predict brain maps, and predict cognitive concepts from a new brain map. The model is sparse because the algorithm sets the weights of as many of the regression parameters (one for each cognitive concept) to zero. Thus, although there are a total 132 cognitive concepts, you will only see a subset in the list at the bottom right for each region.
+     <h4>How do I explore different regions?</h4>
+     If you use the region selector in the bottom left, you will be taken to a random voxel within the region. Some regions are very large, meaning the model looks very different between voxels in the same region, and for this reason we encourage you to reload the same region multiple times to see the variance. Brain regions correspond to randomly selected MNI (x,y,z) coordinates from the <a href="http://www.gin.cnrs.fr/AAL2" target="_blank">AAL2</a> atlas <a href="https://nilearn.github.io/modules/generated/nilearn.image.resample_img.html" target="_blank">resampled</a> to 4mm with nearest interpolation. Data and labels were obtained courtesy of <a href="http://www.neurovault.org/images/14255/" target="_blank">NeuroVault</a>. Full script to generate coordinates <a href="https://github.com/vsoch/cogat_voxel/blob/master/script/generate_aal_lookup.py" target="_blank">is available</a>.
+  </div>
+
+  <!--Code content -->
+  <div id="code_info" style="display:none;">
+
+  <!-- Github -->
+  <div class="mdl-cell mdl-cell--4-col">
+      <div class="mdl-card mdl-shadow--2dp">
+          <div class="mdl-card__title">
+              <h2 class="mdl-card__title-text">Github</h2>
+          </div>
+          <div class="mdl-card__supporting-text">
+              All code for this visualization is publicly available. 
+          </div>
+          <div class="mdl-card__actions mdl-card--border">
+             <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" href="http://www.github.com/vsoch/cogat_voxel" target="_blank">
+             View Code
+             </a>
+          </div>
+      </div>
+  </div>
+  
+  <!-- Docker -->
+  <div class="mdl-cell mdl-cell--4-col">
+      <div class="mdl-card mdl-shadow--2dp">
+          <div class="mdl-card__title">
+              <h2 class="mdl-card__title-text">Docker</h2>
+          </div>
+          <div class="mdl-card__supporting-text">
+              You can run the entire app via a Docker container. 
+          </div>
+          <div class="mdl-card__actions mdl-card--border">
+             <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" href="https://hub.docker.com/r/vanessa/cogat-docker/" target="_blank">
+             Docker Hub
+           </a>
+         </div>
+      </div>
+  </div>
+
+</div>
+
   <!-- Voxel Selector -->
-  <div class="mdl-cell mdl-cell--3-col">
+  <div class="mdl-cell mdl-cell--3-col visual" id="region_column">
       <h2 class="mdl-card__title-text" style="padding-top:20px">Region Selector</h2>
 
           <span id="region_header">Choose a brain region</span>
@@ -160,7 +213,7 @@ body {
   </div>
 
   <!-- Brain Image Viewer -->  
-  <div class="mdl-cell mdl-cell--3-col">
+  <div class="mdl-cell mdl-cell--3-col visual" id="brain_column">
       <a href="#" id="neurovault" target="_blank">
           <img id="brainmap" href="#"/>
       </a><br>
@@ -172,7 +225,7 @@ body {
   </div>
 
   <!-- Concept List -->
-  <div class="mdl-cell mdl-cell--6-col">
+  <div class="mdl-cell mdl-cell--6-col visual" id="concept_column">
       <h2 class="mdl-card__title-text" style="padding-bottom:20px">Cognitive Concepts</h2>
       <div id="concepts"></div> <!--Concepts will be appended here-->
   </div>
@@ -373,6 +426,8 @@ $(".concept_button").mouseout(function() {
     $("."+concept).css("stroke","none")    
 });
 
+//  BUTTONS !! //
+
 //Vanessa's Hacky save svg function!
 function save_svg(evt) {
     var svg = document.getElementsByTagName("svg");
@@ -388,9 +443,22 @@ $(document).ready(function(){
   $("#region_list").select2();
 })
 
+// Show about
+$("#about").click(function(){
+    $("#about_info").toggle();
+    $(".visual").toggle();
+})
+
+
 // User should be able to click on info to keep showing
 $("#region_header").click(function(){
     $("#region_info").toggle();
+})
+
+// Show links to code
+$("#github").click(function(){
+    $("#code_info").toggle();
+    $(".visual").toggle();
 })
 
 // Fullscreen option
